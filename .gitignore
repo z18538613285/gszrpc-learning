@@ -1,0 +1,11 @@
+/.idea/
+/*/*/target/
+/*/*/*/target/
+/*/target/
+/*/*/*.iml
+/*/*.iml
+/*.iml
+/*/*/*.log
+/*.log
+/bin/run.pid
+/docker/NACOSASDF
