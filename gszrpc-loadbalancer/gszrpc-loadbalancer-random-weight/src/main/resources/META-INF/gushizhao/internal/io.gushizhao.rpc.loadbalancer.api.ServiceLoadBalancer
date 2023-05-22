@@ -1,0 +1,1 @@
+randomweight=io.gushizhao.rpc.loadbalancer.random.weight.RandomWeightServiceLoadBalancer

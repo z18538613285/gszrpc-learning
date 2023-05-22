@@ -14,6 +14,11 @@
     <modules>
         <module>gszrpc-serialization-api</module>
         <module>gszrpc-serialization-jdk</module>
+        <module>gszrpc-serialization-json</module>
+        <module>gszrpc-serialization-hessian2</module>
+        <module>gszrpc-serialization-fst</module>
+        <module>gszrpc-serialization-kryo</module>
+        <module>gszrpc-serialization-protostuff</module>
     </modules>
 
     <properties>

@@ -77,4 +77,8 @@ public @interface RpcReference {
      */
     String group() default "";
 
+    int scanNotActiveChannelInterval() default 60000;
+    int heartbeatInterval() default 30000;
+    int retryInterval() default 1000;
+    int retryTimes() default 3;
 }

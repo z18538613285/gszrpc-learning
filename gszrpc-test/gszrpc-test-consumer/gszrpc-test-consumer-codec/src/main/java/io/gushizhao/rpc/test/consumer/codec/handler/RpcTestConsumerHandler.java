@@ -2,6 +2,7 @@ package io.gushizhao.rpc.test.consumer.codec.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import io.gushizhao.rpc.protocol.RpcProtocol;
+import io.gushizhao.rpc.protocol.enumeration.RpcType;
 import io.gushizhao.rpc.protocol.header.RpcHeaderFactory;
 import io.gushizhao.rpc.protocol.request.RpcRequest;
 import io.gushizhao.rpc.protocol.response.RpcResponse;
@@ -23,7 +24,7 @@ public class RpcTestConsumerHandler extends SimpleChannelInboundHandler<RpcProto
         logger.info("发送数据开始。。。");
         // 模拟发送数据
         RpcProtocol<RpcRequest> protocol = new RpcProtocol<>();
-        protocol.setHeader(RpcHeaderFactory.getRequestHeader("jdk"));
+        protocol.setHeader(RpcHeaderFactory.getRequestHeader("jdk", RpcType.REQUEST.getType()));
         RpcRequest request = new RpcRequest();
         request.setClassName("io.gushizhao.rpc.test.api.DemoService");
         request.setGroup("gushizhao");

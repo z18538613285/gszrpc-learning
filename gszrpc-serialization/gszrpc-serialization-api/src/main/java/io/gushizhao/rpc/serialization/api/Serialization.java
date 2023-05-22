@@ -1,5 +1,9 @@
 package io.gushizhao.rpc.serialization.api;
 
+import io.gushizhao.rpc.constants.RpcConstants;
+import io.gushizhao.rpc.spi.annotation.SPI;
+
+@SPI(RpcConstants.SERIALIZATION_JDK)
 public interface Serialization {
 
     /**

@@ -13,6 +13,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>gszrpc-consumer-common</module>
+        <module>gszrpc-consumer-native</module>
+        <module>gszrpc-consumer-spring</module>
     </modules>
 
     <properties>

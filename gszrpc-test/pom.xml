@@ -16,6 +16,8 @@
         <module>gszrpc-test-provider</module>
         <module>gszrpc-test-consumer</module>
         <module>gszrpc-test-api</module>
+        <module>gszrpc-test-registry</module>
+        <module>gszrpc-test-spi</module>
     </modules>
 
     <properties>

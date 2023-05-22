@@ -18,6 +18,12 @@
         <module>gszrpc-codec</module>
         <module>gszrpc-serialization</module>
         <module>gszrpc-consumer</module>
+        <module>gszrpc-proxy</module>
+        <module>gszrpc-registry</module>
+        <module>gszrpc-loadbalancer</module>
+        <module>gszrpc-spi</module>
+        <module>gszrpc-reflect</module>
+        <module>gszrpc-demo</module>
     </modules>
 
     <properties>

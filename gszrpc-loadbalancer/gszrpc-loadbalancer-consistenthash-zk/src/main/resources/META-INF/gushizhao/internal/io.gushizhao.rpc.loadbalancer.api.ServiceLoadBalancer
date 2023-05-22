@@ -1,0 +1,1 @@
+zkconsistenthash=io.gushizhao.rpc.loadbalancer.consistenthash.ZKConsistentHashLoadBalancer

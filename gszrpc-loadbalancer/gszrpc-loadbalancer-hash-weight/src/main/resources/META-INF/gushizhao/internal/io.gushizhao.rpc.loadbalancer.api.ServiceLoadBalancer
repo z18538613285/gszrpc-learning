@@ -1,0 +1,1 @@
+hashweight=io.gushizhao.rpc.loadbalancer.hash.weight.HashWeightServiceLoadBalancer

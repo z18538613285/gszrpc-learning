@@ -1,0 +1,1 @@
+zookeeper=io.gushizhao.rpc.registry.zookeeper.ZookeeperRegistryService

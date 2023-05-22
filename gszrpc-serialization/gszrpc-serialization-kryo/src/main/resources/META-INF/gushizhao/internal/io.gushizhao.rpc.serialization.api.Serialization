@@ -1,0 +1,1 @@
+kryo=io.gushizhao.rpc.serialization.kryo.KryoSerialization

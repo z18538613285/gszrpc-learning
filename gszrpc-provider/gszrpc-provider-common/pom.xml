@@ -27,6 +27,36 @@
             <artifactId>gszrpc-constants</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-registry-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-reflect-jdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-reflect-cglib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-reflect-javassist</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-reflect-bytebuddy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-reflect-asm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

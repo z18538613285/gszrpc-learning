@@ -21,5 +21,30 @@
             <artifactId>gszrpc-codec</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-proxy-jdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-proxy-cglib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-proxy-javassist</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-proxy-bytebuddy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-proxy-asm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

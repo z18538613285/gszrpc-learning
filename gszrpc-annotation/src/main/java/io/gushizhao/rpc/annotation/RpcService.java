@@ -40,4 +40,10 @@ public @interface RpcService {
      * @return
      */
     String group() default "";
+
+    /**
+     * 权重
+     * @return
+     */
+    int weight() default 0;
 }

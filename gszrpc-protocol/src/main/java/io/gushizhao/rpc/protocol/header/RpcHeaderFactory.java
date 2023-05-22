@@ -3,6 +3,7 @@ package io.gushizhao.rpc.protocol.header;
 import io.gushizhao.rpc.common.id.IdFactory;
 import io.gushizhao.rpc.constants.RpcConstants;
 import io.gushizhao.rpc.protocol.enumeration.RpcType;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @Author huzhichao
@@ -11,12 +12,12 @@ import io.gushizhao.rpc.protocol.enumeration.RpcType;
  */
 public class RpcHeaderFactory {
 
-    public static RpcHeader getRequestHeader(String serialization) {
+    public static RpcHeader getRequestHeader(String serialization, int msgType) {
         RpcHeader header = new RpcHeader();
         Long requestId = IdFactory.getId();
         header.setMagic(RpcConstants.MAGIC);
         header.setRequestId(requestId);
-        header.setMsgType((byte) RpcType.REQUEST.getType());
+        header.setMsgType((byte) msgType);
         header.setStatus((byte) 0x1);
         header.setSerializationType(serialization);
         return header;

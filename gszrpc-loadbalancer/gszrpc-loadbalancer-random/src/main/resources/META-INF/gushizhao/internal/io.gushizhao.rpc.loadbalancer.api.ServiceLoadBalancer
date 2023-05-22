@@ -1,0 +1,1 @@
+random=io.gushizhao.rpc.loadbalancer.random.RandomServiceLoadBalancer

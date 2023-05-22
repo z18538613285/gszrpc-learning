@@ -1,0 +1,1 @@
+cglib=io.gushizhao.rpc.proxy.cglib.CglibProxyFactory

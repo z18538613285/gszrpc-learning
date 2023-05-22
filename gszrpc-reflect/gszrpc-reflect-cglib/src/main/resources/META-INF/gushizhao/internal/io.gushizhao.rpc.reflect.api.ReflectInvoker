@@ -1,0 +1,1 @@
+cglib=io.gushizhao.rpc.reflect.cglib.CglibReflectInvoker

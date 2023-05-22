@@ -21,5 +21,10 @@
             <artifactId>gszrpc-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
