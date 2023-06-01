@@ -2,6 +2,7 @@ package io.gushizhao.rpc.codec;
 
 import io.gushizhao.rpc.common.utils.SerializationUtils;
 import io.gushizhao.rpc.constants.RpcConstants;
+import io.gushizhao.rpc.processor.FlowPostProcessor;
 import io.gushizhao.rpc.protocol.RpcProtocol;
 import io.gushizhao.rpc.protocol.enumeration.RpcType;
 import io.gushizhao.rpc.protocol.header.RpcHeader;
@@ -22,6 +23,12 @@ import java.util.List;
  * @Date 2023/4/23 16:11
  */
 public class RpcDecoder extends ByteToMessageDecoder implements RpcCodec {
+
+    private FlowPostProcessor postProcessor;
+
+    public RpcDecoder(FlowPostProcessor postProcessor) {
+        this.postProcessor = postProcessor;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
@@ -86,5 +93,7 @@ public class RpcDecoder extends ByteToMessageDecoder implements RpcCodec {
                 }
                 break;
         }
+        //异步调用流控分析后置处理器
+        this.postFlowProcessor(postProcessor, header);
     }
 }

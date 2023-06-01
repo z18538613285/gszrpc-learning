@@ -2,6 +2,7 @@ package io.gushizhao.rpc.consumer.spring;
 
 import io.gushizhao.rpc.annotation.RpcReference;
 import io.gushizhao.rpc.constants.RpcConstants;
+import io.gushizhao.rpc.consumer.spring.context.RpcConsumerSpringContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -43,6 +44,12 @@ public class RpcConsumerPostProcessor implements ApplicationContextAware, BeanCl
         this.classLoader = classLoader;
     }
 
+    /**
+     * 在执行的过程中，SpringBootConsumerAutoConfiguration类下的rpcClient()方法会在RpcConsumerPostProcessor类的postProcessBeanFactory()方法之后运行，
+     * 就会导致服务消费者服务yml文件中的值覆盖掉解析的@RpcReference注解中的值。
+     * @param beanFactory
+     * @throws BeansException
+     */
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         for (String beanDefinitionName : beanFactory.getBeanDefinitionNames()) {
@@ -66,7 +73,7 @@ public class RpcConsumerPostProcessor implements ApplicationContextAware, BeanCl
     private void parseRpcReference(Field field) {
         RpcReference annotation = AnnotationUtils.getAnnotation(field, RpcReference.class);
         if (annotation != null) {
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RpcReference.class);
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(RpcReferenceBean.class);
             builder.setInitMethodName(RpcConstants.INIT_METHOD_NAME);
             builder.addPropertyValue("interfaceClass", field.getType());
             builder.addPropertyValue("version", annotation.version());
@@ -83,6 +90,29 @@ public class RpcConsumerPostProcessor implements ApplicationContextAware, BeanCl
             builder.addPropertyValue("heartbeatInterval", annotation.heartbeatInterval());
             builder.addPropertyValue("retryInterval", annotation.retryInterval());
             builder.addPropertyValue("retryTimes", annotation.retryTimes());
+            builder.addPropertyValue("enableResultCache", annotation.enableResultCache());
+            builder.addPropertyValue("resultCacheExpire", annotation.resultCacheExpire());
+            builder.addPropertyValue("enableDirectServer", annotation.enableDirectServer());
+            builder.addPropertyValue("directServerUrl", annotation.directServerUrl());
+            builder.addPropertyValue("enableDelayConnection", annotation.enableDelayConnection());
+            builder.addPropertyValue("corePoolSize", annotation.corePoolSize());
+            builder.addPropertyValue("maximumPoolSize", annotation.maximumPoolSize());
+            builder.addPropertyValue("flowType", annotation.flowType());
+            builder.addPropertyValue("enableBuffer", annotation.enableBuffer());
+            builder.addPropertyValue("bufferSize", annotation.bufferSize());
+            builder.addPropertyValue("reflectType", annotation.reflectType());
+            builder.addPropertyValue("fallbackClassName", annotation.fallbackClassName());
+            builder.addPropertyValue("fallbackClass", annotation.fallbackClass());
+            builder.addPropertyValue("enableRateLimiter", annotation.enableRateLimiter());
+            builder.addPropertyValue("rateLimiterType", annotation.rateLimiterType());
+            builder.addPropertyValue("permits", annotation.permits());
+            builder.addPropertyValue("milliSeconds", annotation.milliSeconds());
+            builder.addPropertyValue("rateLimiterFailStrategy", annotation.rateLimiterFailStrategy());
+            builder.addPropertyValue("enableFusing", annotation.enableFusing());
+            builder.addPropertyValue("fusingType", annotation.fusingType());
+            builder.addPropertyValue("totalFailure", annotation.totalFailure());
+            builder.addPropertyValue("fusingMilliSeconds", annotation.fusingMilliSeconds());
+            builder.addPropertyValue("exceptionPostProcessorType", annotation.exceptionPostProcessorType());
             BeanDefinition beanDefinition = builder.getBeanDefinition();
             rpcRefBeanDefinitions.put(field.getName(), beanDefinition);
         }
@@ -91,5 +121,6 @@ public class RpcConsumerPostProcessor implements ApplicationContextAware, BeanCl
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;
+        RpcConsumerSpringContext.getInstance().setContext(applicationContext);
     }
 }

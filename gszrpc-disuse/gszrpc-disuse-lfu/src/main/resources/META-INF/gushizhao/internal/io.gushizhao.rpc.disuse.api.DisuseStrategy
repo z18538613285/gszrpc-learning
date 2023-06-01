@@ -1,0 +1,1 @@
+strategy_lfu=io.gushizhao.rpc.disuse.lfu.LfuDisuseStrategy

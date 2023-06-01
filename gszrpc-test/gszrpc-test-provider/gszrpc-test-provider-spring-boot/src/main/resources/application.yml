@@ -1,0 +1,14 @@
+server:
+  port: 8080
+
+gszrpc:
+  gushizhao:
+    provider:
+      serverAddress: 127.0.0.1:20881
+      serverregistryAddress: 127.0.0.1:20881
+      registryAddress: 127.0.0.1:2181
+      registryType: zookeeper
+      registryLoadBalanceType: zkconsistenthash
+      reflectType: cglib
+      heartbeatInterval: 30000
+      scanNotActiveChannelInterval: 60000

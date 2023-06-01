@@ -5,6 +5,7 @@ import io.gushizhao.rpc.registry.api.config.RegistryConfig;
 import io.gushizhao.rpc.spi.annotation.SPI;
 
 import java.io.IOException;
+import java.util.List;
 
 @SPI
 public interface RegistryService {
@@ -32,6 +33,13 @@ public interface RegistryService {
     ServiceMeta discovery(String serviceName, int invokeHashCode, String sourceIp) throws Exception;
 
     /**
+     * 服务发现
+     * @return 服务元数据
+     * @throws Exception 抛出异常
+     */
+    List<ServiceMeta> discoveryAll() throws Exception;
+
+    /**
      * 服务销毁
      * @throws IOException
      */
@@ -43,4 +51,7 @@ public interface RegistryService {
      * @throws Exception
      */
     default void init(RegistryConfig registryConfig) throws Exception{}
+
+    ServiceMeta select(List<ServiceMeta> serviceMetaList, int invokeHashCode, String sourceIp);
+
 }

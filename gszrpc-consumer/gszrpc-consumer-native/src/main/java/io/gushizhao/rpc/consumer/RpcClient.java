@@ -11,6 +11,7 @@ import io.gushizhao.rpc.registry.api.RegistryService;
 import io.gushizhao.rpc.registry.api.config.RegistryConfig;
 import io.gushizhao.rpc.registry.zookeeper.ZookeeperRegistryService;
 import io.gushizhao.rpc.spi.loader.ExtensionLoader;
+import io.gushizhao.rpc.threadpool.ConcurrentThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -47,7 +48,55 @@ public class RpcClient {
     // 重试次数
     private int retryTimes = 3;
 
-    public RpcClient(String registryAddress, String registryType, String registryLoadBalanceType, String proxy, String serviceVersion, String serviceGroup, long timeout,String serializationType, boolean async, boolean oneway, int heartbeatInterval, int scanNotActiveChannelInterval, int retryInterval, int retryTimes) {
+    private boolean enableResultCache;
+
+    private int resultCacheExpire;
+
+    // 是否开启直连服务
+    private boolean enableDirectServer;
+    // 直连服务的地址
+    private String directServerUrl;
+
+    // 是否开启延迟连接
+    private boolean enableDelayConnection;
+
+    private ConcurrentThreadPool concurrentThreadPool;
+
+    private String flowType;
+
+    private boolean enableBuffer;
+    private int bufferSize;
+
+    private String reflectType;
+
+    private String fallbackClassName;
+
+    private Class<?> fallbackClass;
+
+    private boolean enableRateLimiter;
+
+    private String rateLimiterType;
+
+    private int permits;
+
+    private int milliSeconds;
+
+    private String rateLimiterFailStrategy;
+
+    private boolean enableFusing;
+    private String fusingType;
+    private double totalFailure;
+    private int fusingMilliSeconds;
+
+    private String exceptionPostProcessorType;
+
+    public RpcClient(String registryAddress, String registryType, String registryLoadBalanceType, String proxy, String serviceVersion,
+                     String serviceGroup, long timeout,String serializationType, boolean async, boolean oneway, int heartbeatInterval,
+                     int scanNotActiveChannelInterval, int retryInterval, int retryTimes, boolean enableResultCache, int resultCacheExpire,
+                     boolean enableDirectServer, String directServerUrl, boolean enableDelayConnection, int corePoolSize, int maximumPoolSize,
+                     String flowType, boolean enableBuffer, int bufferSize, String reflectType, String fallbackClassName,
+                     boolean enableRateLimiter, String rateLimiterType, int permits, int milliSeconds, String rateLimiterFailStrategy,
+                     boolean enableFusing, String fusingType, double totalFailure, int fusingMilliSeconds, String exceptionPostProcessorType) {
         this.retryInterval = retryInterval;
         this.retryTimes = retryTimes;
         this.serviceVersion = serviceVersion;
@@ -60,17 +109,68 @@ public class RpcClient {
         this.heartbeatInterval = heartbeatInterval;
         this.scanNotActiveChannelInterval = scanNotActiveChannelInterval;
         this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
+        this.enableResultCache = enableResultCache;
+        this.resultCacheExpire = resultCacheExpire;
+        this.enableDirectServer = enableDirectServer;
+        this.directServerUrl = directServerUrl;
+        this.enableDelayConnection = enableDelayConnection;
+        this.concurrentThreadPool = ConcurrentThreadPool.getInstance(corePoolSize, maximumPoolSize);
+        this.flowType = flowType;
+        this.enableBuffer = enableBuffer;
+        this.bufferSize = bufferSize;
+        this.reflectType = reflectType;
+        this.fallbackClassName = fallbackClassName;
+        this.enableRateLimiter = enableRateLimiter;
+        this.rateLimiterType = rateLimiterType;
+        this.permits = permits;
+        this.milliSeconds = milliSeconds;
+        this.rateLimiterFailStrategy = rateLimiterFailStrategy;
+        this.enableFusing = enableFusing;
+        this.fusingType = fusingType;
+        this.totalFailure = totalFailure;
+        this.fusingMilliSeconds = fusingMilliSeconds;
+        this.exceptionPostProcessorType = exceptionPostProcessorType;
+    }
+
+    public void setFallbackClass(Class<?> fallbackClass) {
+        this.fallbackClass = fallbackClass;
     }
 
     public <T> T create(Class<T> interfaceClass) {
         ProxyFactory proxyFactory = ExtensionLoader.getExtension(ProxyFactory.class, proxy);
-        proxyFactory.init(new ProxyConfig(interfaceClass, serviceVersion, serviceGroup, timeout, registryService, RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes), serializationType, async, oneway));
+        proxyFactory.init(new ProxyConfig(interfaceClass, serviceVersion, serviceGroup, timeout, registryService,
+                RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes)
+                        .setEnableDirectServer(enableDirectServer)
+                        .setDirectServerUrl(directServerUrl)
+                        .setEnableDelayConnection(enableDelayConnection)
+                        .setConcurrentThreadPool(concurrentThreadPool)
+                        .setFlowPostProcessor(flowType)
+                        .setEnableBuffer(enableBuffer)
+                        .setBufferSize(bufferSize)
+                        .buildNettyGroup()
+                        .buildConnection(registryService),
+                serializationType, async, oneway, enableResultCache, resultCacheExpire, reflectType, fallbackClassName, fallbackClass,
+                enableRateLimiter, rateLimiterType, permits, milliSeconds, rateLimiterFailStrategy, enableFusing, fusingType, totalFailure,
+                fusingMilliSeconds, exceptionPostProcessorType));
         return proxyFactory.getProxy(interfaceClass);
     }
 
 
     public <T> IAsyncObjectProxy createAsync(Class<T> interfaceClass) {
-        return new ObjectProxy<T>(interfaceClass, serviceVersion, serviceGroup, timeout, registryService, RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes), serializationType, async, oneway);
+        return new ObjectProxy<T>(interfaceClass, serviceVersion, serviceGroup, timeout, registryService,
+                RpcConsumer.getInstance(heartbeatInterval, scanNotActiveChannelInterval, retryInterval, retryTimes)
+                        .setEnableDirectServer(enableDirectServer)
+                        .setDirectServerUrl(directServerUrl)
+                        .setEnableDelayConnection(enableDelayConnection)
+                        .setConcurrentThreadPool(concurrentThreadPool)
+                        .setFlowPostProcessor(flowType)
+                        .setEnableBuffer(enableBuffer)
+                        .setBufferSize(bufferSize)
+                        .buildNettyGroup()
+                        .buildConnection(registryService),
+                serializationType, async, oneway, enableResultCache, resultCacheExpire, reflectType, fallbackClassName, fallbackClass,
+                enableRateLimiter, rateLimiterType, permits, milliSeconds, rateLimiterFailStrategy, enableFusing, fusingType, totalFailure,
+                fusingMilliSeconds, exceptionPostProcessorType);
     }
 
 

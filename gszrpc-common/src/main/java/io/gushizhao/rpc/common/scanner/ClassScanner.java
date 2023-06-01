@@ -103,25 +103,37 @@ public class ClassScanner {
             // 如果前半部分和定义的包名相同
             if (name.equals(packageDirName)) {
                 int idx = name.lastIndexOf('/');
+                String currentPackageDir = "";
                 // 如果以 “/” 结尾 是一个包
                 if (idx != -1) {
                     // 获取包名 把 "/" 替换为 "."
-                    packageName = name.substring(0, idx).replace('/', '.');
+                    currentPackageDir = name.substring(0, idx);
+                    packageName = name.replace('/', '.');
                 }
+                /**
+                 * fix03:
+                 *
+                 * 当扫描的包存在类或者子包时，idx != -1结果为true，而不管recursive为true还是false，都会执行if语句中的代码，实现递归扫描，
+                 * 从而引发了是否递归扫描的标识recursive不起作用的问题。
+                 *
+                 * 解决：
+                 *最核心的修改逻辑就是在出现问题的if语句中新增判断逻辑，当idx不等于1，并且当前扫描的路径与传入的扫描路径相同，或者是递归调用，
+                 * 此时，才会执行if语句中的逻辑。
+                 */
                 // 如果可以迭代下去 并且是一个包
-                if ((idx != -1) || recursive) {
+                if ((idx != -1 && currentPackageDir.equals(packageDirName))|| recursive) {
                     // 如果是一个 .class 而且不是目录
                     if (name.endsWith(CLASS_FILE_SUFFIX) && !entry.isDirectory()) {
                         //去掉后面的 ".class" 获取真正的类名
-                        String className = name.substring(packageName.length() + 1, name.length() - 6);
+                        String className = name.substring(packageName.length() + 1, name.length() - CLASS_FILE_SUFFIX.length());
                         classNameList.add(packageName + '.' + className);
                     }
                 }
             }
-
         }
         return packageName;
     }
+
 
     /**
      * 扫描指定包下的所有类信息

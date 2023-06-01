@@ -1,6 +1,7 @@
 package io.gushizhao.rpc.codec;
 
 import io.gushizhao.rpc.common.utils.SerializationUtils;
+import io.gushizhao.rpc.processor.FlowPostProcessor;
 import io.gushizhao.rpc.protocol.RpcProtocol;
 import io.gushizhao.rpc.protocol.header.RpcHeader;
 import io.gushizhao.rpc.serialization.api.Serialization;
@@ -17,6 +18,12 @@ import java.nio.charset.StandardCharsets;
  */
 public class RpcEncoder extends MessageToByteEncoder<RpcProtocol<Object>> implements RpcCodec{
 
+    private FlowPostProcessor postProcessor;
+
+    public RpcEncoder(FlowPostProcessor postProcessor) {
+        this.postProcessor = postProcessor;
+    }
+
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, RpcProtocol<Object> msg, ByteBuf byteBuf) throws Exception {
         RpcHeader header = msg.getHeader();
@@ -31,5 +38,8 @@ public class RpcEncoder extends MessageToByteEncoder<RpcProtocol<Object>> implem
         byte[] data = serialization.serialize(msg.getBody());
         byteBuf.writeInt(data.length);
         byteBuf.writeBytes(data);
+        //异步调用流控分析后置处理器
+        header.setMsgLen(data.length);
+        this.postFlowProcessor(postProcessor, header);
     }
 }

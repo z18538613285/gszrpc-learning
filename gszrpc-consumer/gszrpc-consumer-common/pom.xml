@@ -46,5 +46,10 @@
             <artifactId>gszrpc-proxy-asm</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-buffer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

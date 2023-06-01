@@ -2,9 +2,11 @@ package io.gushizhao.rpc.consumer.common.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import io.gushizhao.rpc.buffer.cache.BufferCacheManager;
 import io.gushizhao.rpc.constants.RpcConstants;
 import io.gushizhao.rpc.consumer.common.cache.ConsumerChannelCache;
 import io.gushizhao.rpc.consumer.common.context.RpcContext;
+import io.gushizhao.rpc.exception.processor.ExceptionPostProcessor;
 import io.gushizhao.rpc.protocol.RpcProtocol;
 import io.gushizhao.rpc.protocol.enumeration.RpcStatus;
 import io.gushizhao.rpc.protocol.enumeration.RpcType;
@@ -13,6 +15,8 @@ import io.gushizhao.rpc.protocol.header.RpcHeaderFactory;
 import io.gushizhao.rpc.protocol.request.RpcRequest;
 import io.gushizhao.rpc.protocol.response.RpcResponse;
 import io.gushizhao.rpc.proxy.api.future.RPCFuture;
+import io.gushizhao.rpc.threadpool.BufferCacheThreadPool;
+import io.gushizhao.rpc.threadpool.ConcurrentThreadPool;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -42,6 +46,33 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
     // 存储请求 ID 与 RpcResponse 协议的映射关系
     private Map<Long, RPCFuture> pendingRPC = new ConcurrentHashMap<>();
     //private Map<Long, RpcProtocol<RpcResponse>> pendingResponse = new ConcurrentHashMap<>();
+
+    private ConcurrentThreadPool concurrentThreadPool;
+
+    /**
+     * 是否开启缓冲区
+     */
+    private boolean enableBuffer;
+
+    /**
+     * 缓冲区管理器
+     */
+    private BufferCacheManager<RpcProtocol<RpcResponse>> bufferCacheManager;
+
+    private ExceptionPostProcessor exceptionPostProcessor;
+
+    public RpcConsumerHandler(boolean enableBuffer, int bufferSize, ConcurrentThreadPool concurrentThreadPool, ExceptionPostProcessor exceptionPostProcessor) {
+        this.concurrentThreadPool = concurrentThreadPool;
+        this.exceptionPostProcessor = exceptionPostProcessor;
+        this.enableBuffer = enableBuffer;
+        if (enableBuffer){
+            this.bufferCacheManager = BufferCacheManager.getInstance(bufferSize);
+            BufferCacheThreadPool.submit(() -> {
+                consumerBufferCache();
+            });
+        }
+    }
+
 
     public Channel getChannel() {
         return channel;
@@ -81,8 +112,11 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
         if (protocol == null) {
             return;
         }
-        logger.info("服务消费者接收到的数据===>>>{}", JSONObject.toJSONString(protocol));
-        this.handlerMessage(protocol, channelHandlerContext.channel());
+        concurrentThreadPool.submit(() -> {
+            logger.info("服务消费者接收到的数据===>>>{}", JSONObject.toJSONString(protocol));
+            this.handlerMessage(protocol, channelHandlerContext.channel());
+        });
+
     }
 
     private void handlerMessage(RpcProtocol<RpcResponse> protocol, Channel channel) {
@@ -92,14 +126,15 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
             this.handlerHeartbeatMessageToConsumer(protocol);
         } else if (header.getMsgType() == (byte) RpcType.RESPONSE.getType()) {
             // 请求消息
-            this.handlerResponseMessage(protocol, header);
+            this.handlerResponseMessageOrBuffer(protocol);
         } else if (header.getMsgType() == (byte) RpcType.HEARTBEAT_FROM_PROVIDER.getType()) {
             // 请求消息
             this.handlerHeartbeatMessageFromProvider(protocol, channel);
         }
     }
 
-    private void handlerResponseMessage(RpcProtocol<RpcResponse> protocol, RpcHeader header) {
+    private void handlerResponseMessage(RpcProtocol<RpcResponse> protocol) {
+        RpcHeader header = protocol.getHeader();
         long requestId = header.getRequestId();
         RPCFuture rpcFuture = pendingRPC.remove(requestId);
         if (rpcFuture != null) {
@@ -134,8 +169,10 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
     }
 
     public RPCFuture sendRequest(RpcProtocol<RpcRequest> protocol, boolean async, boolean oneway) {
-        logger.info("服务消费者发送的数据===>>>{}", JSONObject.toJSONString(protocol));
-        return oneway ? this.sendRequestOneway(protocol) : async ? sendRequestASync(protocol) : this.sendRequestSync(protocol);
+        return concurrentThreadPool.submit(() -> {
+            logger.info("服务消费者发送的数据===>>>{}", JSONObject.toJSONString(protocol));
+            return oneway ? this.sendRequestOneway(protocol) : async ? sendRequestASync(protocol) : this.sendRequestSync(protocol);
+        });
     }
 
     // 同步调用
@@ -160,7 +197,7 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
     }
 
     private RPCFuture getRpcFuture(RpcProtocol<RpcRequest> protocol) {
-        RPCFuture rpcFuture = new RPCFuture(protocol);
+        RPCFuture rpcFuture = new RPCFuture(protocol, concurrentThreadPool);
         RpcHeader header = protocol.getHeader();
         long requestId = header.getRequestId();
         pendingRPC.put(requestId, rpcFuture);
@@ -186,5 +223,37 @@ public class RpcConsumerHandler extends SimpleChannelInboundHandler<RpcProtocol<
         } else {
             super.userEventTriggered(ctx, evt);
         }
+    }
+
+
+    /**
+     * 消费缓冲区数据
+     */
+    private void consumerBufferCache() {
+        //不断消息缓冲区的数据
+        while (true){
+            RpcProtocol<RpcResponse> protocol = this.bufferCacheManager.take();
+            if (protocol != null){
+                this.handlerResponseMessage(protocol);
+            }
+        }
+    }
+
+    /**
+     * 包含是否开启了缓冲区的响应消息
+     */
+    private void handlerResponseMessageOrBuffer(RpcProtocol<RpcResponse> protocol){
+        if (enableBuffer){
+            logger.info("enable buffer...");
+            this.bufferCacheManager.put(protocol);
+        }else {
+            this.handlerResponseMessage(protocol);
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        exceptionPostProcessor.postExceptionProcessor(cause);
+        super.exceptionCaught(ctx, cause);
     }
 }

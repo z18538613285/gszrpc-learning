@@ -1,0 +1,1 @@
+semaphore=io.gushizhao.rpc.ratelimiter.semaphore.SemaphoreRateLimiterInvoker

@@ -20,20 +20,39 @@ public class RpcConsumerNativeTest {
 
     @Before
     public void initRpcClient() {
-        rpcClient = new RpcClient("127.0.0.1:2181", "zookeeper", "enhanced_leastconnections","asm", "1.0.0", "gushizhao", 3000, "protostuff", false, false, 30000, 60000, 1000, 3);
+        rpcClient = new RpcClient("127.0.0.1:2181", "zookeeper", "enhanced_leastconnections",
+                "asm", "1.0.0", "gushizhao", 3000, "protostuff", false,
+                false, 30000, 60000, 1000, 3, false,
+                10000, true, "127.0.0.1:27880,127.0.0.1:27880,127.0.0.1:27880",
+                true, 16, 16, "print", false, 2,
+                "asm", "io.gushizhao.rpc.test.consumer.hello.FallbackDemoServiceImpl",
+                false, "guava", 5, 5000,"fallback",
+                true, "percent", 10, 10000, "print");
     }
 
     @Test
-    public void testInterfaceRpc() throws Exception{
+    public void testInterfaceRpc() throws Exception {
         DemoService demoService = rpcClient.create(DemoService.class);
-        String result = demoService.hello("gushizhao");
-        logger.info("返回的结果数据===>>> " + result);
-        Thread.sleep(120000);
-        rpcClient.shutdown();
+        //Thread.sleep(5000);
+        for (int i = 0; i < 5; i++) {
+            String result = demoService.hello("gsz");
+            logger.info("返回的结果数据===>>> " + result);
+        }
+        while (true) {
+            Thread.sleep(1000);
+        }
     }
 
-    public static void main(String[] args) throws Exception{
-        RpcClient rpcClient = new RpcClient("127.0.0.1:2181", "zookeeper", "random", "jdk","1.0.0", "gushizhao", 3000, "jdk", false, false, 30000, 60000, 1000, 3);
+    public static void main(String[] args) throws Exception {
+        RpcClient rpcClient = new RpcClient("127.0.0.1:2181", "zookeeper", "random",
+                "jdk", "1.0.0", "gushizhao", 3000, "jdk", false,
+                false, 30000, 60000, 1000, 3, false,
+                10000, false, "127.0.0.1:27880", true, 16,
+                16, "print", false, 2, "jdk",
+                "io.gushizhao.rpc.test.consumer.hello.FallbackDemoServiceImpl", false,
+                "counter", 100, 1000, "fallback",
+                true, "percent", 1, 5000,"print");
+
         DemoService demoService = rpcClient.create(DemoService.class);
         String result = demoService.hello("gushizhao");
         logger.info("返回的结果数据===>>> " + result);

@@ -23,6 +23,21 @@ public abstract class BaseProxyFactory<T> implements ProxyFactory {
                 proxyConfig.getConsumer(),
                 proxyConfig.getSerializationType(),
                 proxyConfig.getAsync(),
-                proxyConfig.getOneway());
+                proxyConfig.getOneway(),
+                proxyConfig.getEnableResultCache(),
+                proxyConfig.getResultCacheExpire(),
+                proxyConfig.getReflectType(),
+                proxyConfig.getFallbackClassName(),
+                proxyConfig.getFallbackClass(),
+                proxyConfig.getEnableRateLimiter(),
+                proxyConfig.getRateLimiterType(),
+                proxyConfig.getPermits(),
+                proxyConfig.getMilliSeconds(),
+                proxyConfig.getRateLimiterFailStrategy(),
+                proxyConfig.getEnableFusing(),
+                proxyConfig.getFusingType(),
+                proxyConfig.getTotalFailure(),
+                proxyConfig.getFusingMilliSeconds(),
+                proxyConfig.getExceptionPostProcessorType());
     }
 }

@@ -3,6 +3,7 @@ package io.gushizhao.rpc.provider.common.server.base;
 import io.gushizhao.rpc.codec.RpcDecoder;
 import io.gushizhao.rpc.codec.RpcEncoder;
 import io.gushizhao.rpc.constants.RpcConstants;
+import io.gushizhao.rpc.processor.FlowPostProcessor;
 import io.gushizhao.rpc.provider.common.handler.RpcProviderHandler;
 import io.gushizhao.rpc.provider.common.manage.ProviderConnectionManager;
 import io.gushizhao.rpc.provider.common.server.api.Server;
@@ -54,8 +55,48 @@ public class BaseServer implements Server {
     private int heartbeatInterval = 30000;
     // 扫描并移除空闲连接时间，默认60秒
     private int scanNotActiveChannelInterval = 60000;
+    // 结果缓存时间，默认5秒
+    private int resultCacheExpire = 5000;
+    // 是否开启结果缓存
+    private boolean enableResultCache;
 
-    public BaseServer(String serverAddress, String registryAddress, String registryType, String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval) {
+    private int corePoolSize;
+
+    private int maximumPoolSize;
+
+    private FlowPostProcessor flowPostProcessor;
+
+    private int maxConnections;
+
+    private String disuseStrategyType;
+
+    private boolean enableBuffer;
+
+    private int bufferSize;
+    //是否开启限流
+    private boolean enableRateLimiter;
+    //限流类型
+    private String rateLimiterType;
+    //在milliSeconds毫秒内最多能够通过的请求个数
+    private int permits;
+    //毫秒数
+    private int milliSeconds;
+
+    private String rateLimiterFailStrategy;
+
+    private boolean enableFusing;
+    private String fusingType;
+    private double totalFailure;
+    private int fusingMilliSeconds;
+
+    private String exceptionPostProcessorType;
+
+    public BaseServer(String serverAddress, String registryAddress, String registryType, String registryLoadBalanceType,
+                      String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval, boolean enableResultCache,
+                      int resultCacheExpire, int corePoolSize, int maximumPoolSize, String flowType, int maxConnections,
+                      String disuseStrategyType, boolean enableBuffer, int bufferSize, boolean enableRateLimiter,
+                      String rateLimiterType, int permits, int milliSeconds, String rateLimiterFailStrategy, boolean enableFusing,
+                      String fusingType, double totalFailure, int fusingMilliSeconds, String exceptionPostProcessorType) {
         if (heartbeatInterval > 0) {
             this.heartbeatInterval = heartbeatInterval;
         }
@@ -69,6 +110,27 @@ public class BaseServer implements Server {
         }
         this.reflectType = reflectType;
         this.registryService = this.getRegistryService(registryAddress, registryType, registryLoadBalanceType);
+        if (resultCacheExpire > 0) {
+            this.resultCacheExpire = resultCacheExpire;
+        }
+        this.enableResultCache = enableResultCache;
+        this.corePoolSize = corePoolSize;
+        this.maximumPoolSize = maximumPoolSize;
+        this.flowPostProcessor = ExtensionLoader.getExtension(FlowPostProcessor.class, flowType);
+        this.maxConnections = maxConnections;
+        this.disuseStrategyType = disuseStrategyType;
+        this.enableBuffer = enableBuffer;
+        this.bufferSize = bufferSize;
+        this.enableRateLimiter = enableRateLimiter;
+        this.rateLimiterType = rateLimiterType;
+        this.permits = permits;
+        this.milliSeconds = milliSeconds;
+        this.rateLimiterFailStrategy = rateLimiterFailStrategy;
+        this.enableFusing = enableFusing;
+        this.fusingType = fusingType;
+        this.totalFailure = totalFailure;
+        this.fusingMilliSeconds = fusingMilliSeconds;
+        this.exceptionPostProcessorType = exceptionPostProcessorType;
     }
 
     /**
@@ -104,8 +166,8 @@ public class BaseServer implements Server {
                         @Override
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
-                                    .addLast(RpcConstants.CODEC_DECODER, new RpcDecoder())
-                                    .addLast(RpcConstants.CODEC_ENCODER, new RpcEncoder())
+                                    .addLast(RpcConstants.CODEC_DECODER, new RpcDecoder(flowPostProcessor))
+                                    .addLast(RpcConstants.CODEC_ENCODER, new RpcEncoder(flowPostProcessor))
                                     /**
                                      * readerIdleTime : 读空闲超时检测定时任务会在每 readerIdleTime 时间内启动一次，检测在 readerIdleTime 内是否发生过读事件，如果没有发生，
                                      *      则触发读超时事件 READER_IDLE_STATE_EVENT 并将超时事件交给 NettyClientHandler 处理，如果为 0 则不创建定时任务
@@ -114,7 +176,10 @@ public class BaseServer implements Server {
                                      * unit： 表示前面三个参数的单位，毫秒
                                      */
                                     .addLast(RpcConstants.CODEC_SERVER_IDLE_HANDLER, new IdleStateHandler(0, 0, heartbeatInterval, TimeUnit.MILLISECONDS))
-                                    .addLast(RpcConstants.CODEC_HANDLER, new RpcProviderHandler(reflectType, handlerMap));
+                                    .addLast(RpcConstants.CODEC_HANDLER, new RpcProviderHandler(reflectType, enableResultCache, resultCacheExpire, corePoolSize,
+                                            maximumPoolSize, maxConnections, disuseStrategyType, enableBuffer, bufferSize,
+                                            enableRateLimiter, rateLimiterType, permits, milliSeconds, rateLimiterFailStrategy, enableFusing,
+                                            fusingType, totalFailure, fusingMilliSeconds, exceptionPostProcessorType, handlerMap));
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)

@@ -23,8 +23,17 @@ import java.util.Map;
 public class RpcSpringServer extends BaseServer implements ApplicationContextAware, InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(RpcSpringServer.class);
 
-    public RpcSpringServer(String serverAddress, String registryAddress, String registryType, String registryLoadBalanceType, String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval) {
-        super(serverAddress, registryAddress, registryType, registryLoadBalanceType, reflectType, heartbeatInterval, scanNotActiveChannelInterval);
+    public RpcSpringServer(String serverAddress, String registryAddress, String registryType, String registryLoadBalanceType,
+                           String reflectType, int heartbeatInterval, int scanNotActiveChannelInterval, boolean enableResultCache,
+                           int resultCacheExpire, int corePoolSize, int maximumPoolSize, String flowType, int maxConnections,
+                           String disuseStrategyType, boolean enableBuffer, int bufferSize, boolean enableRateLimiter,
+                           String rateLimiterType, int permits, int milliSeconds, String rateLimiterFailStrategy, boolean enableFusing,
+                           String fusingType, double totalFailure, int fusingMilliSeconds, String exceptionPostProcessorType) {
+        super(serverAddress, registryAddress, registryType, registryLoadBalanceType, reflectType, heartbeatInterval,
+                scanNotActiveChannelInterval, enableResultCache, resultCacheExpire, corePoolSize, maximumPoolSize,
+                flowType, maxConnections, disuseStrategyType, enableBuffer, bufferSize, enableRateLimiter,
+                rateLimiterType, permits, milliSeconds, rateLimiterFailStrategy, enableFusing, fusingType, totalFailure,
+                fusingMilliSeconds, exceptionPostProcessorType);
     }
 
     @Override

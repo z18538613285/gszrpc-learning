@@ -1,0 +1,1 @@
+strategy_fifo=io.gushizhao.rpc.disuse.fifo.FifoDisuseStrategy

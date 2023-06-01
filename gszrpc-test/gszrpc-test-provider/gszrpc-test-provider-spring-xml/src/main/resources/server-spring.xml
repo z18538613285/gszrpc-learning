@@ -19,5 +19,24 @@
         <constructor-arg name="reflectType" value="${reflect.type}" />
         <constructor-arg name="heartbeatInterval" value="${server.heartbeatInterval}" />
         <constructor-arg name="scanNotActiveChannelInterval" value="${server.scanNotActiveChannelInterval}" />
+        <constructor-arg name="enableResultCache" value="${server.enableResultCache}"/>
+        <constructor-arg name="resultCacheExpire" value="${server.resultCacheExpire}"/>
+        <constructor-arg name="corePoolSize" value="${server.corePoolSize}"/>
+        <constructor-arg name="maximumPoolSize" value="${server.maximumPoolSize}"/>
+        <constructor-arg name="flowType" value="${server.flowType}"/>
+        <constructor-arg name="maxConnections" value="${server.maxConnections}"/>
+        <constructor-arg name="disuseStrategyType" value="${server.disuseStrategyType}"/>
+        <constructor-arg name="enableBuffer" value="${server.enableBuffer}"/>
+        <constructor-arg name="bufferSize" value="${server.bufferSize}"/>
+        <constructor-arg name="enableRateLimiter" value="${server.enableRateLimiter}"/>
+        <constructor-arg name="rateLimiterType" value="${server.rateLimiterType}"/>
+        <constructor-arg name="permits" value="${server.permits}"/>
+        <constructor-arg name="milliSeconds" value="${server.milliSeconds}"/>
+        <constructor-arg name="rateLimiterFailStrategy" value="${server.rateLimiterFailStrategy}"/>
+        <constructor-arg name="enableFusing" value="${server.enableFusing}"/>
+        <constructor-arg name="fusingType" value="${server.fusingType}"/>
+        <constructor-arg name="totalFailure" value="${server.totalFailure}"/>
+        <constructor-arg name="fusingMilliSeconds" value="${server.fusingMilliSeconds}"/>
+        <constructor-arg name="exceptionPostProcessorType" value="${server.exceptionPostProcessorType}"/>
     </bean>
 </beans>

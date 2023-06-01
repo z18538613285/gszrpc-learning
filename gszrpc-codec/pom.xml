@@ -61,6 +61,16 @@
             <artifactId>gszrpc-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-flow-print</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gushizhao.rpc</groupId>
+            <artifactId>gszrpc-threadpool</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 </project>

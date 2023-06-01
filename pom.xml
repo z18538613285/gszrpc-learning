@@ -24,6 +24,16 @@
         <module>gszrpc-spi</module>
         <module>gszrpc-reflect</module>
         <module>gszrpc-demo</module>
+        <module>gszrpc-spring-boot-starter</module>
+        <module>gszrpc-cache</module>
+        <module>gszrpc-threadpool</module>
+        <module>gszrpc-flow</module>
+        <module>gszrpc-connection</module>
+        <module>gszrpc-disuse</module>
+        <module>gszrpc-buffer</module>
+        <module>gszrpc-ratelimiter</module>
+        <module>gszrpc-fusing</module>
+        <module>gszrpc-exception</module>
     </modules>
 
     <properties>

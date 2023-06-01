@@ -4,6 +4,7 @@ import io.gushizhao.rpc.annotation.RpcService;
 import io.gushizhao.rpc.test.api.DemoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * @Author huzhichao
@@ -15,6 +16,7 @@ interfaceClassName = "io.gushizhao.rpc.test.api.DemoService",
 version = "1.0.0",
 group = "gushizhao",
 weight = 2)
+@Service
 public class ProviderDemoServiceImpl implements DemoService {
     private static final Logger logger = LoggerFactory.getLogger(ProviderDemoServiceImpl.class);
 

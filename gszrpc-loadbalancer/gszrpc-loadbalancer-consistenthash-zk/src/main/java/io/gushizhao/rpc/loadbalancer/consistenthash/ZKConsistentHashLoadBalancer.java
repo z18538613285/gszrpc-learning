@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -17,7 +18,7 @@ import java.util.TreeMap;
  * @Date 2023/5/10 10:01
  */
 @SPIClass
-public class ZKConsistentHashLoadBalancer implements ServiceLoadBalancer<ServiceInstance<ServiceMeta>> {
+public class ZKConsistentHashLoadBalancer<T> implements ServiceLoadBalancer<T> {
 
     private final static Logger logger = LoggerFactory.getLogger(ZKConsistentHashLoadBalancer.class);
 
@@ -25,15 +26,15 @@ public class ZKConsistentHashLoadBalancer implements ServiceLoadBalancer<Service
     private final static String VIRTUAL_NODE_SPLIT = "#";
 
     @Override
-    public ServiceInstance<ServiceMeta> select(List<ServiceInstance<ServiceMeta>> servers, int hashCode, String sourceIp) {
+    public T select(List<T> servers, int hashCode, String sourceIp) {
         logger.info("基于Zookeeper的一致性Hash算法的负载均衡策略...");
-        TreeMap<Integer,ServiceInstance<ServiceMeta>> ring = makeConsistentHashRing(servers);
+        TreeMap<Integer,T> ring = makeConsistentHashRing(servers);
         return allocateNode(ring, hashCode);
     }
 
-    private TreeMap<Integer, ServiceInstance<ServiceMeta>> makeConsistentHashRing(List<ServiceInstance<ServiceMeta>> servers) {
-        TreeMap<Integer, ServiceInstance<ServiceMeta>> ring = new TreeMap<>();
-        for (ServiceInstance<ServiceMeta> instance : servers) {
+    private TreeMap<Integer, T> makeConsistentHashRing(List<T> servers) {
+        TreeMap<Integer, T> ring = new TreeMap<>();
+        for (T instance : servers) {
             for (int i = 0; i < VIRTUAL_NODE_SIZE; i++) {
                 ring.put((buildServiceInstanceKey(instance) + VIRTUAL_NODE_SPLIT + i).hashCode(), instance);
             }
@@ -41,13 +42,12 @@ public class ZKConsistentHashLoadBalancer implements ServiceLoadBalancer<Service
         return ring;
     }
 
-    private String buildServiceInstanceKey(ServiceInstance<ServiceMeta> instance) {
-        ServiceMeta payload = instance.getPayload();
-        return String.join(":", payload.getServiceAddr(), String.valueOf(payload.getServicePort()));
+    private String buildServiceInstanceKey(T instance) {
+        return Objects.toString(instance);
     }
 
-    private ServiceInstance<ServiceMeta> allocateNode(TreeMap<Integer, ServiceInstance<ServiceMeta>> ring, int hashCode) {
-        Map.Entry<Integer, ServiceInstance<ServiceMeta>> entry = ring.ceilingEntry(hashCode);
+    private T allocateNode(TreeMap<Integer, T> ring, int hashCode) {
+        Map.Entry<Integer, T> entry = ring.ceilingEntry(hashCode);
         if (entry == null) {
             entry = ring.firstEntry();
         }

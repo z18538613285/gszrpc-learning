@@ -1,5 +1,6 @@
 package io.gushizhao.rpc.annotation;
 
+import io.gushizhao.rpc.constants.RpcConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.annotation.ElementType;
@@ -81,4 +82,51 @@ public @interface RpcReference {
     int heartbeatInterval() default 30000;
     int retryInterval() default 1000;
     int retryTimes() default 3;
+
+    boolean enableResultCache() default false;
+    int resultCacheExpire() default RpcConstants.RPC_SCAN_RESULT_CACHE_EXPIRE;
+
+    // 是否开启直连服务
+    boolean enableDirectServer() default false;
+    // 直连服务的地址
+    String directServerUrl() default RpcConstants.RPC_COMMON_DEFAULT_DIRECT_SERVER;
+
+    // 是否开启延迟连接
+    boolean enableDelayConnection() default false;
+
+    int corePoolSize() default RpcConstants.DEFAULT_CORE_POOL_SIZE; ;
+
+    int maximumPoolSize() default RpcConstants.DEFAULT_MAXI_NUM_POOL_SIZE;
+
+    String flowType() default RpcConstants.FLOW_POST_PROCESSOR_PRINT;
+
+    boolean enableBuffer() default false;
+
+    int bufferSize() default RpcConstants.DEFAULT_BUFFER_SIZE;
+
+    Class<?> fallbackClass() default void.class;
+
+    String fallbackClassName() default RpcConstants.DEFAULT_FALLBACK_CLASS_NAME;
+
+    String reflectType() default RpcConstants.DEFAULT_REFLECT_TYPE;
+
+    boolean enableRateLimiter() default false;
+
+    String rateLimiterType() default RpcConstants.DEFAULT_RATELIMITER_INVOKER;
+
+    int permits() default RpcConstants.DEFAULT_RATELIMITER_PERMITS;
+
+    int milliSeconds() default RpcConstants.DEFAULT_RATELIMITER_MILLI_SECONDS;
+
+    String rateLimiterFailStrategy() default RpcConstants.RATE_LIMILTER_FAIL_STRATEGY_DIRECT;
+
+    boolean enableFusing() default false;
+
+    String fusingType() default RpcConstants.DEFAULT_FUSING_INVOKER;
+
+    double totalFailure() default RpcConstants.DEFAULT_FUSING_TOTAL_FAILURE;
+
+    int fusingMilliSeconds() default RpcConstants.DEFAULT_FUSING_MILLI_SECONDS;
+
+    String exceptionPostProcessorType() default RpcConstants.EXCEPTION_POST_PROCESSOR_PRINT;
 }

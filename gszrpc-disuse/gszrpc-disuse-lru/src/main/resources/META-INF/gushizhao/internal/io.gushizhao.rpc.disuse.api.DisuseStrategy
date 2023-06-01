@@ -1,0 +1,1 @@
+strategy_lru=io.gushizhao.rpc.disuse.lru.LruDisuseStrategy

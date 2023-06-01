@@ -6,6 +6,7 @@ import io.gushizhao.rpc.protocol.request.RpcRequest;
 import io.gushizhao.rpc.protocol.response.RpcResponse;
 import io.gushizhao.rpc.proxy.api.callback.AsyncRPCCallback;
 import io.gushizhao.rpc.proxy.api.common.ClientThreadPool;
+import io.gushizhao.rpc.threadpool.ConcurrentThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +39,13 @@ public class RPCFuture extends CompletableFuture<Object> {
     private List<AsyncRPCCallback> pendingCallbacks = new ArrayList<>();
     private ReentrantLock lock = new ReentrantLock();
 
-    public RPCFuture(RpcProtocol<RpcRequest> requestRpcProtocol) {
+    private ConcurrentThreadPool concurrentThreadPool;
+
+    public RPCFuture(RpcProtocol<RpcRequest> requestRpcProtocol, ConcurrentThreadPool concurrentThreadPool) {
         this.sync = new Sync();
         this.requestRpcProtocol = requestRpcProtocol;
         this.startTime = System.currentTimeMillis();
+        this.concurrentThreadPool = concurrentThreadPool;
     }
 
     @Override
@@ -105,7 +109,7 @@ public class RPCFuture extends CompletableFuture<Object> {
     // 主要用于异步执行回调方法
     private void runCallback(final AsyncRPCCallback callback) {
         final RpcResponse res = this.responseRpcProtocol.getBody();
-        ClientThreadPool.submit(() -> {
+        concurrentThreadPool.submit(() -> {
             if (!res.isError()) {
                 callback.onSuccess(res.getResult());
             } else {

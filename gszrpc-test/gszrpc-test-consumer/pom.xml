@@ -17,6 +17,8 @@
         <module>gszrpc-test-consumer-native</module>
         <module>gszrpc-test-consumer-spring-xml</module>
         <module>gszrpc-test-consumer-spring-annotation</module>
+        <module>gszrpc-test-consumer-spring-boot</module>
+        <module>gszrpc-test-consumer-docker</module>
     </modules>
 
     <properties>
